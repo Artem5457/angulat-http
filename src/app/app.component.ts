@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { delay } from 'rxjs';
 import { Todo, TodoService } from './todos.service';
 
 @Component({
@@ -13,6 +12,7 @@ export class AppComponent implements OnInit {
   todos: Todo[] = [];
   loading: boolean = false;
   todoTitle: string = '';
+  error: string = '';
 
   constructor(
     private todosService: TodoService
@@ -47,7 +47,9 @@ export class AppComponent implements OnInit {
       .subscribe(todos => {
         this.todos = todos;
         this.loading = false;
-      })
+      }, error => {
+        this.error = error.message;
+      });
   }
 
   removeTodo(id: number) {
@@ -55,5 +57,12 @@ export class AppComponent implements OnInit {
       .subscribe(() => {
         this.todos = this.todos.filter(el => el.id !== id)
       })
+  }
+
+  completeTodo(id: number) {
+    this.todosService.completeTodo(id).subscribe(todo => {
+      // @ts-ignore
+      this.todos.find(t => t.id === todo.id)?.completed = true
+    })
   }
 }
